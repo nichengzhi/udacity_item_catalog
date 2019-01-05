@@ -53,7 +53,7 @@ class Item(Base):
            'id'         : self.id,
            'create_date' : self.created_date
        }
-
-engine = create_engine('sqlite:///categoryitem.db')
+DATABASE_URL="postgresql://postgres:postgres@localhost/news"
+engine = create_engine(DATABASE_URL, echo = True)
 
 Base.metadata.create_all(engine)

@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class="row">
+        <div class="col-1"></div>
+        <div class="col-4 col-offset-2 padding-top">
+            <h2>Delete Item</h2>
+            <p>Are you sure want to delete?</p>
+            <form action="#" method = "post">
+                
+                    <button type="submit" class="btn btn-primary padding-top" id="submit" type="submit">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>Submit</button>
+                    <a href = "{{url_for('showcatagories')}}">
+                        <button class="btn btn-danger delete">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

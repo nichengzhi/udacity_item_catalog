@@ -1,11 +1,16 @@
-<div class="row top-menu">
-        <div class="col-md-6">
-            <a href="{{url_for('showcatagories')}}">
-                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>Catalog App
-            </a>
-        </div>
-        <div class="col-md-6 text-right">
-                        <p>Login Link will go Here </p>
-            
-        </div>
+<div class="row top-menu bg-primary justify-content-around">
+	<div class="col-4 align-self-center">
+		
+		<span class="glyphicon glyphicon-home" aria-hidden="true"><h1><strong>Catagory App</strong></h1></span>
+		
+	</div>
+	<div class="col-4 text-right align-self-center">
+		<!--<button type="submit" class="btn btn-danger">Login</button>-->
+		{%if 'access_token' not in session %}
+		<a href="{{url_for('showLogin')}}" class="loginlink">Login</a>
+		{% else %}
+		<a href="{{url_for('disconnect')}}" class="loginlink">Logout </a>
+		{% endif %}
     </div>
+    
+</div>
