@@ -245,7 +245,7 @@ def showItem(catagory):
     items = session.query(Item).filter_by(catagory_id=catagory.id).all()
     creator = catagory.user_id
     total = len(items)
-
+    print login_session
     if 'username' not in login_session:
         return render_template('publicitem.html', catagories=catagories,
                                items=items, catagory=catagory, total=total)
@@ -260,6 +260,9 @@ def showDescription(catagory_name, item_name):
     item = session.query(Item).filter_by(name=item_name).one()
     catagory = session.query(Category).filter_by(name=catagory_name).one()
     creator_id = item.user_id
+    if 'user_id' not in login_session:
+        return render_template('publicdescription.html',
+                               item=item, catagory=catagory)
     if login_session['user_id'] == creator_id:
 
         return render_template(
