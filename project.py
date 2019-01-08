@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template
+from flask import request, redirect, jsonify, url_for, flash
 from sqlalchemy import create_engine, asc, and_
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Item, User
@@ -108,8 +109,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -141,7 +142,8 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius:" \
+        "150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
@@ -159,7 +161,8 @@ def gdisconnect():
         return response
     # print 'revoken token is {}'.format(access_token)
     # print 'user name is {}'.format(login_session['username'])
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    token = login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is {}'.format(result)
@@ -212,14 +215,7 @@ def getUserID(email):
 def disconnect():
     print login_session
     gdisconnect()
-    #del login_session['gplus_id']
     del login_session['access_token']
-    #del login_session['username']
-    #del login_session['email']
-    #del login_session['picture']
-    #del login_session['user_id']
-    #del login_session['provider']
-
     return redirect(url_for('showcatagories'))
 
 
@@ -234,7 +230,8 @@ def showcatagories():
     print(session.query(Category).filter_by(
         id=items[0].catagory_id).one().name)
     return render_template(
-        'catagories.html', catagories=catagories, items=zip(items, itemswithcat))
+        'catagories.html', catagories=catagories,
+        items=zip(items, itemswithcat))
 
 
 @app.route('/catagory/<string:catagory>/items/')
@@ -251,7 +248,8 @@ def showItem(catagory):
                                items=items, catagory=catagory, total=total)
     else:
         return render_template(
-            'item.html', catagories=catagories, items=items, catagory=catagory, total=total)
+            'item.html', catagories=catagories, items=items,
+            catagory=catagory, total=total)
 
 
 @app.route('/catagory/<string:catagory_name>/<string:item_name>/')
