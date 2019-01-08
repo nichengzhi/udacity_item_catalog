@@ -1,5 +1,10 @@
-from flask import Flask, render_template
-from flask import request, redirect, jsonify, url_for, flash
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   jsonify,
+                   url_for,
+                   flash)
 from sqlalchemy import create_engine, asc, and_
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Item, User
@@ -41,7 +46,7 @@ def restaurantsJSON():
 
 @app.route('/catalog/<int:catid>/<int:itemid>/json')
 def itemjson(catid, itemid):
-    item = session.query(Item).filter_by(id=itemid).one()
+    item = session.query(Item).filter_by(id=itemid).one_or_none()
     return jsonify(Item=item.serialize)
 
 # Create anti-forgery state token
@@ -125,9 +130,9 @@ def gconnect():
 
     data = answer.json()
 
-    login_session['username'] = data['name']
-    login_session['picture'] = data['picture']
-    login_session['email'] = data['email']
+    login_session['username'] = data.get('name', '')
+    login_session['picture'] = data.get('picture', '')
+    login_session['email'] = data.get('email', '')
     # see if a user exists
     user_id = getUserID(login_session['email'])
     print user_id
@@ -275,25 +280,30 @@ def editItem(item):
     if 'username' not in login_session:
         return redirect('/login')
     item = session.query(Item).filter_by(name=item).one()
-    catagory = session.query(Category).filter_by(id=item.catagory_id).one()
-    total_cat = session.query(Category).all()
-    if request.method == 'POST':
-        if request.form['name']:
-            item.name = request.form['name']
-        if request.form['description']:
-            item.description = request.form['description']
-        if request.form['catagory']:
-            cat_id = session.query(Category).filter_by(
-                name=request.form['catagory']).one().id
-            # print(cat_id)
-            item.catagory_id = int(cat_id)
-        session.add(item)
-        session.commit()
-        flash('Item Successfully Edited')
-        return redirect(url_for('showItem', catagory=catagory.name))
+    creator_id = item.user_id
+    if login_session['user_id'] != creator_id:
+        flash('you have no rights to delete this item')
+        return redirect(url_for('showcatagories'))
     else:
-        return render_template('edit.html', item=item,
-                               catagory=catagory, total_cat=total_cat)
+        catagory = session.query(Category).filter_by(id=item.catagory_id).one()
+        total_cat = session.query(Category).all()
+        if request.method == 'POST':
+            if request.form['name']:
+                item.name = request.form['name']
+            if request.form['description']:
+                item.description = request.form['description']
+            if request.form['catagory']:
+                cat_id = session.query(Category).filter_by(
+                    name=request.form['catagory']).one().id
+                # print(cat_id)
+                item.catagory_id = int(cat_id)
+            session.add(item)
+            session.commit()
+            flash('Item Successfully Edited')
+            return redirect(url_for('showItem', catagory=catagory.name))
+        else:
+            return render_template('edit.html', item=item,
+                                catagory=catagory, total_cat=total_cat)
 
 
 @app.route('/catagory/<string:item>/delete', methods=['GET', 'POST'])
@@ -301,6 +311,10 @@ def deleteItem(item):
     if 'username' not in login_session:
         return redirect('/login')
     item = session.query(Item).filter_by(name=item).one()
+    creator_id = item.user_id
+    if login_session['user_id'] != creator_id:
+        flash('you have no rights to delete this item')
+        return redirect(url_for('showcatagories'))
     catagory = session.query(Category).filter_by(id=item.catagory_id).one()
     if request.method == 'POST':
         session.delete(item)
